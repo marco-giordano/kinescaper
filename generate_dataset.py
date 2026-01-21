@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import pandas as pd
+import json
 from typing import List
 
 from src.core import KineScaper
@@ -46,6 +47,8 @@ def generate_dataset():
         
     print(f"Starting generation of {n_samples} samples...")
     print(f"Velocity Range: {velocity_range} km/h")
+    
+    dataset_annotations = []
     
     for i in range(n_samples):
         print(f"\n--- Sample {i+1}/{n_samples} ---")
@@ -144,10 +147,42 @@ def generate_dataset():
         
         # E. Annotations
         # Update filename in annotations
-        save_dcase_annotations(annotations, csv_dir, out_name)
-        save_extended_metadata(annotations, json_dir, out_name)
+        for ann in annotations:
+            ann['filename'] = out_name # Ensure filename matches output
+            
+        dataset_annotations.extend(annotations)
         
         print(f"Saved {out_name}")
+
+    # 5. Save Aggregated Metadata
+    # CSV
+    csv_path = os.path.join(csv_dir, 'metadata.csv')
+    df = pd.DataFrame(dataset_annotations)
+    # Reorder columns to match DCASE
+    cols = ["filename", "onset", "offset", "event_label", "snr_min", "snr_max", "snr_avg", "snr_std", "velocity_kmh", "closest_distance", "frame_size"]
+    # Only include cols that exist (some extended might not be in DCASE spec strictly but useful)
+    # Strict DCASE: filename, onset, offset, event_label
+    # We will save full extended info in specific columns if desired, or just standard.
+    # User request: "keep the CSV and JSON info in one single file for each type"
+    # Let's write ALL collected keys to CSV for completeness, or strictly formatted?
+    # Usually DCASE CSV is minimal. Let's stick to the headers from utils but add extended cols if present.
+    
+    # Ensure float formatting
+    for col in ['onset', 'offset', 'snr_min', 'snr_max', 'snr_avg', 'snr_std', 'velocity_kmh', 'closest_distance']:
+        if col in df.columns:
+            df[col] = df[col].apply(lambda x: f"{float(x):.3f}")
+            
+    df.to_csv(csv_path, sep='\t', index=False)
+    print(f"Saved Aggregated CSV: {csv_path}")
+    
+    # JSON
+    json_path = os.path.join(json_dir, 'metadata.json')
+    json_data = {
+        "dataset_metadata": dataset_annotations
+    }
+    with open(json_path, 'w') as f:
+        json.dump(json_data, f, indent=4)
+    print(f"Saved Aggregated JSON: {json_path}")
 
 if __name__ == "__main__":
     generate_dataset()
