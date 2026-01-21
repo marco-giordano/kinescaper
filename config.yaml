@@ -12,7 +12,7 @@ output_folder: "output/demo_dataset"
 frame_size: 2048 # analysis frame size
 
 # Acceleration: "cpu" (default) or "metal" (Apple Silicon)
-acceleration: "metal"
+acceleration: "cpu"
 
 # Virtual Calibration - Background
 # Step A: Normalize background RMS to this dBFS level
@@ -34,9 +34,9 @@ required_foreground_SPL: 90.0
 
 # Scene Geometry
 # Trajectory: Start position [x, y, z]
-start_position: [-100.0, 20.0, 1.0]
+start_position: [-200.0, 20.0, 1.8]
 # Trajectory: End position [x, y, z]
-end_position: [200.0, 20.0, 1.0]
+end_position: [200.0, 20.0, 1.8]
 
 velocity: 72.0 # km/h
 

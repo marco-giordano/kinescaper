@@ -160,6 +160,43 @@ class KineScaper:
         
         return data * gain
 
+
+    def _point_segment_distance(self, px, py, pz, p1, p2):
+        """
+        Calculate the distance between a point p=(px,py,pz) and a line segment p1-p2.
+        """
+        p = np.array([px, py, pz])
+        # Vector v = p2 - p1
+        v = p2 - p1
+        # Vector w = p - p1
+        w = p - p1
+        
+        c1 = np.dot(w, v)
+        if c1 <= 0:
+            return np.linalg.norm(p - p1)
+            
+        c2 = np.dot(v, v)
+        if c2 <= c1:
+            return np.linalg.norm(p - p2)
+            
+        b = c1 / c2
+        pb = p1 + b * v
+        return np.linalg.norm(p - pb)
+    
+    def _compute_trajectory_min_distance(self, trajectory: np.ndarray, mic_pos: np.ndarray) -> float:
+        """
+        Computes the minimum distance between a trajectory (polyline) and a mic position.
+        """
+        min_d = float('inf')
+        # Iterate over segments
+        for i in range(len(trajectory) - 1):
+             p1 = trajectory[i]
+             p2 = trajectory[i+1]
+             d = self._point_segment_distance(mic_pos[0], mic_pos[1], mic_pos[2], p1, p2)
+             if d < min_d:
+                 min_d = d
+        return min_d
+
     def render(self) -> Tuple[np.ndarray, List[Dict]]:
         total_samples = int(self.duration * self.fs)
         output_mix = np.zeros(total_samples)
@@ -202,23 +239,19 @@ class KineScaper:
         for event in self.events:
             print(f"Simulating event: {event.label}...")
             try:
-                # 0. Min Distance Check
-                # Calculate minimum distance from trajectory to any mic
-                mic_array = np.array(mic_locs) # (M, 3)
-                traj = event.trajectory # (T, 3)
+                # 0. Min Distance Check (Geometric Segment Check)
+                mic_array = np.array(mic_locs)
+                min_dist_overall = float('inf')
+                for m_idx in range(nmics):
+                    mic_pos = np.array(mic_locs[m_idx])
+                    d = self._compute_trajectory_min_distance(event.trajectory, mic_pos)
+                    if d < min_dist_overall:
+                        min_dist_overall = d
                 
-                # Brute force check: dist between all traj points and all mics
-                # D[t, m] = dist(traj[t], mic[m])
-                # We need min(D)
-                # Optimization: computes pairwise distances
-                dists = np.sqrt(np.sum((traj[:, np.newaxis, :] - mic_array[np.newaxis, :, :]) ** 2, axis=2))
-                min_dist = np.min(dists)
-                
+                min_dist = min_dist_overall
+
                 if min_dist < 1.0:
-                    print(f"Skipping event {event.event_label}: Trajectory too close to microphone (Min Dist: {min_dist:.2f}m < 1.0m)")
-                    # Alternative: We could shift the trajectory away, but for now strict skip as per request?
-                    # "minimum distance... must be 1 m". Usually implies constraint enforcement.
-                    # Since we generate traj in config/demo, raising error is safer to alert user.
+                    print(f"Skipping event {event.label}: Trajectory too close to microphone (Min Dist: {min_dist:.2f}m < 1.0m)")
                     raise ValueError(f"Trajectory violates Minimum Distance Constraint ({min_dist:.2f}m < 1.0m)")
 
                 # Speed Conversion (km/h -> m/s)
