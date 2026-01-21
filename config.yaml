@@ -28,17 +28,22 @@ cal_foreground_SPL: 100.0
 
 # Mixing Targets
 # The desired background SPL in the final mix
-required_background_SPL: 45.0
+required_background_SPL: 50.0
 # The desired foreground SPL (@ 1m) in the final mix
 required_foreground_SPL: 90.0
 
+# Batch Generation Settings
+n_samples: 5
+
 # Scene Geometry
 # Trajectory: Start position [x, y, z]
-start_position: [-200.0, 20.0, 1.8]
+start_position: [-200.0, 5.0, 1.8]
 # Trajectory: End position [x, y, z]
-end_position: [200.0, 20.0, 1.8]
+end_position: [200.0, 5.0, 1.8]
 
-velocity: 72.0 # km/h
+# Velocity Range [min, max] in km/h
+velocity: [30.0, 80.0]
+
 
 # Microphone Array
 # List of [x, y, z] positions
