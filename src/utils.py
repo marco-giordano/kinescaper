@@ -77,9 +77,9 @@ def save_dcase_annotations(annotations: List[Dict], output_folder: str, audio_fi
     """
     Saves DCASE-style CSV: filename, onset, offset, event_label, snr_min, snr_max, snr_avg
     """
-    csv_filename = os.path.splitext(audio_filename)[0] + ".csv"
+    csv_filename = os.path.splitext(audio_filename)[0] + ".tsv"
     csv_path = os.path.join(output_folder, csv_filename)
-    
+
     headers = ["filename", "onset", "offset", "event_label", "snr_min", "snr_max", "snr_avg"]
     
     with open(csv_path, 'w', newline='') as f:

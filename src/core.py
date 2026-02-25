@@ -378,7 +378,7 @@ class KineScaper:
                         "event_label": event.label,
                         "filename": os.path.basename(event.source_path),
                         "onset": event.start_time,
-                        "offset": event.start_time + (ev_len / self.fs),
+                        "offset": min(event.start_time + (ev_len / self.fs), self.duration),
                         "snr_min": snr_min,
                         "snr_max": snr_max,
                         "snr_avg": snr_avg,

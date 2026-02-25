@@ -1,0 +1,72 @@
+KineScaper — cProfile Report (sorted by cumulative time)
+Generated: 2026-02-25 16:40:55.960775
+fs=32000  duration=40.0s  total_audio_samples=1,280,000
+
+         130970885 function calls (130970845 primitive calls) in 73.972 seconds
+
+   Ordered by: cumulative time
+   List reduced from 585 to 60 due to restriction <60>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.001    0.001   73.972   73.972 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/profile_pipeline.py:152(run_once_profiled)
+        1    0.005    0.005   71.475   71.475 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/src/core.py:200(render)
+        1    0.553    0.553   71.413   71.413 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/environment.py:426(simulate)
+   962201    5.186    0.000   69.115    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:254(update)
+   962201   13.378    0.000   24.183    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:682(_get_asphalt_reflection_filter)
+  1924402    2.504    0.000   18.215    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/delayLine.py:154(update_delay_line)
+  2886603    6.684    0.000   15.239    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/delayLine.py:204(_interpolated_read)
+  2886603    7.788    0.000   10.674    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:437(_compute_air_absorption_filter)
+   962201    0.378    0.000   10.560    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/fft/_pocketfft.py:421(irfft)
+   962201    9.822    0.000   10.113    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/fft/_pocketfft.py:58(_raw_fft)
+  2886603    4.334    0.000    7.317    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/delayLine.py:306(_frac_delay_interpolated_sinc)
+  6735411    4.019    0.000    4.019    0.000 {method 'dot' of 'numpy.ndarray' objects}
+   962202    1.483    0.000    3.502    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:541(_compute_angle)
+  1924508    0.787    0.000    3.332    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:2304(sum)
+   962203    1.003    0.000    2.919    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:519(_compute_delay)
+  2886603    0.669    0.000    2.821    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:1421(searchsorted)
+        1    0.006    0.006    2.490    2.490 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/src/utils.py:16(load_random_background)
+  1924513    0.995    0.000    2.394    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:66(_wrapreduction)
+        1    0.010    0.010    2.261    2.261 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/signal/_signaltools.py:3568(resample)
+        2    0.000    0.000    2.251    1.126 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/fft/_backend.py:19(__ua_function__)
+        2    0.000    0.000    2.251    1.126 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/fft/_basic_backend.py:27(_execute_1D)
+  2886606    0.721    0.000    2.152    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:48(_wrapfunc)
+        1    0.000    0.000    1.745    1.745 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:80(__init__)
+        1    0.032    0.032    1.727    1.727 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:628(_compute_directivity_filter_table_road_tire)
+    16471    0.480    0.000    1.693    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/signal/_fir_filter_design.py:958(firls)
+        1    0.000    0.000    1.432    1.432 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/fft/_basic_backend.py:89(rfft)
+        1    0.000    0.000    1.432    1.432 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/fft/_pocketfft/basic.py:40(r2c)
+        1    1.432    1.432    1.432    1.432 {built-in method scipy.fft._pocketfft.pypocketfft.r2c}
+  2039829    1.392    0.000    1.392    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+  2886603    0.977    0.000    1.332    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/lib/_function_base_impl.py:272(flip)
+ 31752633    1.238    0.000    1.238    0.000 {built-in method math.floor}
+  2886603    1.214    0.000    1.214    0.000 {method 'searchsorted' of 'numpy.ndarray' objects}
+        1    0.000    0.000    0.820    0.820 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/fft/_basic_backend.py:95(irfft)
+        1    0.000    0.000    0.820    0.820 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/fft/_pocketfft/basic.py:70(c2r)
+        1    0.820    0.820    0.820    0.820 {built-in method scipy.fft._pocketfft.pypocketfft.c2r}
+  3001926    0.698    0.000    0.709    0.000 {built-in method numpy.array}
+  2936042    0.450    0.000    0.450    0.000 {built-in method numpy.empty}
+  3848804    0.383    0.000    0.383    0.000 {method 'appendleft' of 'collections.deque' objects}
+    16471    0.075    0.000    0.383    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/linalg/_basic.py:96(solve)
+  1924429    0.272    0.000    0.272    0.000 {built-in method numpy.zeros}
+  2886603    0.253    0.000    0.253    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/libs/pyroadacoustics/pyroadacoustics/simulatorManager.py:501(_compute_sound_attenuation)
+3002585/3002584    0.229    0.000    0.237    0.000 {built-in method builtins.isinstance}
+4178826/4178789    0.235    0.000    0.235    0.000 {built-in method builtins.len}
+  2886746    0.218    0.000    0.218    0.000 {built-in method builtins.getattr}
+    98826    0.172    0.000    0.197    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/lib/_function_base_impl.py:1402(diff)
+  2903103    0.190    0.000    0.190    0.000 {built-in method builtins.hasattr}
+    16471    0.013    0.000    0.179    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/linalg/_special_matrices.py:22(toeplitz)
+  1924522    0.172    0.000    0.172    0.000 {method 'items' of 'dict' objects}
+  2886603    0.167    0.000    0.167    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/lib/_index_tricks_impl.py:773(__getitem__)
+  2886603    0.163    0.000    0.163    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:1417(_searchsorted_dispatcher)
+  2886603    0.161    0.000    0.161    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/lib/_function_base_impl.py:268(_flip_dispatcher)
+    16471    0.037    0.000    0.157    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/_lib/_util.py:1149(wrapper)
+  1924405    0.143    0.000    0.143    0.000 {built-in method math.sqrt}
+  1924404    0.135    0.000    0.135    0.000 {built-in method math.sin}
+        2    0.000    0.000    0.122    0.061 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/io/wavfile.py:615(read)
+        2    0.081    0.041    0.120    0.060 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/scipy/io/wavfile.py:447(_read_data_chunk)
+  1061033    0.113    0.000    0.113    0.000 {built-in method numpy.lib.array_utils.normalize_axis_index}
+  1924508    0.111    0.000    0.111    0.000 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:2299(_sum_dispatcher)
+        5    0.000    0.000    0.102    0.020 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:3699(mean)
+        5    0.002    0.000    0.102    0.020 /Users/marco/Documents/sviluppo/dottorato-dev/kinescaper/.venv/lib/python3.13/site-packages/numpy/_core/_methods.py:115(_mean)
+
+

@@ -1,0 +1,16 @@
+KineScaper — Stage Wall-Clock Breakdown
+Generated: 2026-02-25 16:39:41.982220
+fs=32000  duration=40.0s  total_audio_samples=1,280,000
+
+Stage                                  Time (s)   % total
+----------------------------------------------------------
+  0_ks_init                               0.000      0.0%
+  1_load_background                       2.266      4.6%
+  2_add_background                        0.002      0.0%
+  3_load_fg_meta                          0.011      0.0%
+  4_trajectory_setup                      0.000      0.0%
+  5_load_norm_fg_audio                    0.009      0.0%
+  6_render_total                         47.310     95.4%
+  7_write_wav                             0.002      0.0%
+----------------------------------------------------------
+  TOTAL                                  49.601    100.0%

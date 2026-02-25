@@ -2,13 +2,13 @@
 # Data Paths
 dataset_root: "datasets"
 background_dir: "datasets/background"
-foreground_dir: "datasets/foreground"
-metadata_path: "datasets/foreground/metadata.csv"
+foreground_dir: "datasets/foreground/test9_comprehensive/samples"
+metadata_path: "datasets/foreground/test9_comprehensive/metadata.csv"
 
 # Output Parameters
-sampling_frequency: 44100
-output_duration: 30.0
-output_folder: "output/demo_dataset"
+sampling_frequency: 32000
+output_duration: 40.0
+output_folder: "output/test9_comprehensive_dataset"
 frame_size: 2048 # analysis frame size
 
 # Acceleration: "cpu" (default) or "metal" (Apple Silicon)
@@ -18,7 +18,7 @@ acceleration: "cpu"
 # Step A: Normalize background RMS to this dBFS level
 cal_background_norm: -20.0 
 # Step B: Declare that the above level corresponds to this SPL (dB)
-cal_background_SPL: 50.0  
+cal_background_SPL: 60.0  
 
 # Virtual Calibration - Foreground
 # Step A: Normalize foreground Peak to this dBFS level
@@ -30,19 +30,27 @@ cal_foreground_SPL: 100.0
 # The desired background SPL in the final mix
 required_background_SPL: 50.0
 # The desired foreground SPL (@ 1m) in the final mix
-required_foreground_SPL: 90.0
+required_foreground_SPL: 100.0
 
 # Batch Generation Settings
 n_samples: 5
 
 # Scene Geometry
-# Trajectory: Start position [x, y, z]
-start_position: [-200.0, 5.0, 1.8]
-# Trajectory: End position [x, y, z]
-end_position: [200.0, 5.0, 1.8]
+# The source trajectory is defined by two points, each randomized within a circle in the XY plane.
+# start_circle_center / end_circle_center: [x, y] — center of each circle
+# position_radius: shared radius [m] for both circles
+# z_range: [min, max] — the z coordinate is drawn once per simulation (same for start and end)
+start_circle_center: [-300.0, 5.0]
+end_circle_center: [300.0, 5.0]
+position_radius: 100.0
+z_range: [1.5, 2.5]
 
 # Velocity Range [min, max] in km/h
-velocity: [30.0, 80.0]
+velocity: [60.0, 100.0]
+
+# Onset Randomization
+# Random insertion time [min, max] in seconds for the foreground event
+onset_range: [1.0, 3.0]
 
 
 # Microphone Array

@@ -6,3 +6,4 @@ pandas
 PyYAML
 torch
 torchaudio
+tqdm
