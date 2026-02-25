@@ -8,11 +8,17 @@ metadata_path: "datasets/foreground/test9_comprehensive/metadata.csv"
 # Output Parameters
 sampling_frequency: 32000
 output_duration: 40.0
-output_folder: "output/test9_comprehensive_dataset"
+output_folder: "output/test9_comprehensive_dataset_vectorised_metal"
 frame_size: 2048 # analysis frame size
 
 # Acceleration: "cpu" (default) or "metal" (Apple Silicon)
-acceleration: "cpu"
+acceleration: "metal"
+
+# Vectorised physics engine — independent of 'acceleration'.
+# When true, uses batch NumPy ops instead of the per-sample Python loop.
+# Can be combined with acceleration: "cpu" (default) or "metal".
+# Set to false to fall back to the original SimulatorManager reference path.
+use_vectorisation: true
 
 # Virtual Calibration - Background
 # Step A: Normalize background RMS to this dBFS level

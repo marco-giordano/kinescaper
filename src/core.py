@@ -264,70 +264,71 @@ class KineScaper:
                 # Apply Physics Mixing Gain (Step C prep)
                 input_sig = norm_sig * gain_f_lin
                 
-                # Check Acceleration
+                # ── Routing decision ──────────────────────────────────────────────────
+                #   acceleration=metal  →  MetalVectorisedSimulator (MPS/CUDA)
+                #   acceleration=cpu  +  use_vectorisation=True  →  vectorised NumPy
+                #   acceleration=cpu  +  use_vectorisation=False →  legacy SimulatorManager
+                #
+                # Rule: Metal requires vectorisation (tensors ops only).
+                # If user sets acceleration=metal but use_vectorisation=False, we warn
+                # and force it on automatically.
+                # ─────────────────────────────────────────────────────────────────────
                 accel_mode = self.config.get('acceleration', 'cpu')
-                
+                use_vec    = self.config.get('use_vectorisation', False)
+
+                if accel_mode == 'metal' and not use_vec:
+                    print(
+                        "⚠️  WARNING: acceleration='metal' requires use_vectorisation=true. "
+                        "Enabling vectorisation automatically for this run. "
+                        "Set 'use_vectorisation: true' in config.yaml to suppress this warning."
+                    )
+                    use_vec = True
+
                 sim_output = None
-                
+
+                # ── Branch 1: Metal ────────────────────────────────────────────────
                 if accel_mode == 'metal':
                     try:
-                         from .metal_backend import MetalSimulator
-                         # Lazy init to reuse? Better to init once. 
-                         # Ideally, store simulator in params, but event loop is independent.
-                         # Just init once per event or globally.
-                         # Init globally in __init__ if needed, but here is fine.
-                         
-                         metal_sim = MetalSimulator(fs=self.fs)
-                         
-                         # Construct full trajectory? MetalSimulator needs full points?
-                         # MetalSimulator.simulate_event does linear interp itself.
-                         # We pass traj points and it generates them.
-                         
-                         start_sample = int(event.start_time * self.fs)
-                         
-                         # For MetalSimulator, logic is slightly different: it returns the processed signal directly.
-                         # Need to reshape output to match (M, N).
-                         # Current MetalSimulator assumes single mic?
-                         # Let's support multi-mic loop in MetalSimulator, or loop here.
-                         
-                         # Loop mics here for now
-                         metal_outputs = []
-                         for m_idx in range(len(mic_locs)):
-                             mic_pos = np.array(mic_locs[m_idx])
-                             out_sig = metal_sim.simulate_event(
-                                 signal=input_sig,
-                                 trajectory=event.trajectory,
-                                 mic_pos=mic_pos,
-                                 velocity=velocity_ms, # m/s
-                                 start_sample=start_sample
-                             )
-                             metal_outputs.append(out_sig)
-                         
-                         sim_output = np.array(metal_outputs) # (M, N_event_samples)
-                         
-                    except ImportError:
-                         print("Failed to import MetalSimulator (torch missing?). Fallback to CPU.")
-                         accel_mode = 'cpu'
-                    except Exception as e:
-                         print(f"Metal Simulation failed: {e}. Fallback to CPU.")
-                         accel_mode = 'cpu'
+                        from .metal_vectorised_backend import simulate_metal_environment
 
-                if accel_mode == 'cpu':
-                    # Legacy CPU Path
+                        env_metal = Environment(fs=self.fs)
+                        env_metal.add_source(
+                            position=event.trajectory[0],
+                            signal=input_sig,
+                            trajectory_points=event.trajectory,
+                            source_velocity=[velocity_ms],
+                        )
+                        env_metal.add_microphone_array(mic_array)
+
+                        sim_output = simulate_metal_environment(env_metal)  # (M, N)
+
+                    except ImportError:
+                        print("⚠️  Failed to import metal_vectorised_backend (torch missing?). "
+                              "Falling back to NumPy vectorised path.")
+                        accel_mode = 'cpu'
+                        use_vec    = True
+                    except Exception as e:
+                        print(f"⚠️  Metal simulation failed: {e}. "
+                              "Falling back to NumPy vectorised path.")
+                        accel_mode = 'cpu'
+                        use_vec    = True
+
+                # ── Branch 2 & 3: CPU (vectorised or legacy) ──────────────────────
+                if accel_mode == 'cpu' or sim_output is None:
                     env = Environment(fs=self.fs)
-                    
-                    v_arg = [velocity_ms]
-                    
                     env.add_source(
                         position=event.trajectory[0],
                         signal=input_sig,
                         trajectory_points=event.trajectory,
-                        source_velocity=v_arg
+                        source_velocity=[velocity_ms],
                     )
-                    
                     env.add_microphone_array(mic_array)
-                    
-                    sim_output = env.simulate() # (M, N_sim)
+
+                    if use_vec:
+                        from .vectorised_simulator import simulate_vectorised_environment
+                        sim_output = simulate_vectorised_environment(env)   # (M, N_sim)
+                    else:
+                        sim_output = env.simulate()                         # (M, N_sim)
                 
                 # --- SNR ANALYSIS (Frame-based) ---
                 fg_trace = sim_output[0]
