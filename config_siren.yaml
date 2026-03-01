@@ -1,0 +1,78 @@
+
+# Data Paths
+dataset_root: "datasets"
+background_dir: "datasets/background"
+foreground_dir: "datasets/foreground/final_dataset_28022026/samples"
+metadata_path: "datasets/foreground/final_dataset_28022026/metadata.csv"
+
+# Output Parameters
+sampling_frequency: 32000
+output_duration: 40.0
+output_folder: "output/final_dataset_28022026_vectorised"
+frame_size: 2048 # analysis frame size
+
+# Acceleration: "cpu" (default) or "metal" (Apple Silicon)
+acceleration: "cpu"
+
+# Vectorised physics engine — independent of 'acceleration'.
+# When true, uses batch NumPy ops instead of the per-sample Python loop.
+# Can be combined with acceleration: "cpu" (default) or "metal".
+# Set to false to fall back to the original SimulatorManager reference path.
+use_vectorisation: true
+
+# Virtual Calibration - Background
+# Step A: Normalize background RMS to this dBFS level
+cal_background_norm: -12.0 
+# Step B: Declare that the above level corresponds to this SPL (dB)
+cal_background_SPL: 75.0  
+
+# Virtual Calibration - Foreground
+# Step A: Normalize foreground Peak to this dBFS level
+cal_foreground_norm: -1.0
+# Step B: Declare that the above level corresponds to this SPL (dB @ 1m)
+cal_foreground_SPL: 100.0
+
+# Mixing Targets
+# The desired background SPL in the final mix
+# RANGE: [50, 70] quantized to 3 integer dB including boundaries
+required_background_SPL: [50.0, 71.0]
+background_SPL_quantization: 3
+# The desired foreground SPL (@ 1m) in the final mix
+# RANGE: [80, 110] quantized to 3 integer dB including boundaries
+required_foreground_SPL: [80.0, 110.0]
+foreground_SPL_quantization: 3
+
+# Dataset Generation Settings
+# Balance the dataset w.r.t. "bigger" or "smaller" foreground dataset siren mode classes
+balance_wrt: "bigger"
+# percentage of the selected class to generate
+class_percentage: 0.01 
+# number of iterations
+iterations: 1
+
+
+# Scene Geometry
+# The source trajectory is defined by two points, each randomized within a circle in the XY plane.
+# start_circle_center / end_circle_center: [x, y] — center of each circle
+# position_radius: shared radius [m] for both circles
+# z_range: [min, max] — the z coordinate is drawn once per simulation (same for start and end)
+start_circle_center: [-300.0, 5.0]
+end_circle_center: [300.0, 5.0]
+position_radius: 100.0
+z_range: [1.5, 2.5]
+
+# Velocity Range [min, max] in km/h
+# RANGE: [40, 90] round to 1 integer km/h
+velocity: [40.0, 90.0]
+velocity_quantization: 1
+
+# Onset Randomization
+# Random insertion time [min, max] in seconds for the foreground event
+onset_range: [4.0, 20.0]
+
+
+# Microphone Array
+# List of [x, y, z] positions
+mic_positions:
+  - [0.0, 0.0, 1.8]
+  # - [0.2, 0.0, 1.8] # Stereo pair example

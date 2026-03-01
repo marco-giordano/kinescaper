@@ -2,17 +2,17 @@
 # Data Paths
 dataset_root: "datasets"
 background_dir: "datasets/background"
-foreground_dir: "datasets/foreground/test9_comprehensive/samples"
-metadata_path: "datasets/foreground/test9_comprehensive/metadata.csv"
+foreground_dir: "datasets/foreground/final_dataset_28022026/samples"
+metadata_path: "datasets/foreground/final_dataset_28022026/metadata.csv"
 
 # Output Parameters
 sampling_frequency: 32000
 output_duration: 40.0
-output_folder: "output/test9_comprehensive_dataset_vectorised_metal"
+output_folder: "output/final_dataset_28022026_vectorised"
 frame_size: 2048 # analysis frame size
 
 # Acceleration: "cpu" (default) or "metal" (Apple Silicon)
-acceleration: "metal"
+acceleration: "cpu"
 
 # Vectorised physics engine — independent of 'acceleration'.
 # When true, uses batch NumPy ops instead of the per-sample Python loop.
@@ -22,9 +22,9 @@ use_vectorisation: true
 
 # Virtual Calibration - Background
 # Step A: Normalize background RMS to this dBFS level
-cal_background_norm: -20.0 
+cal_background_norm: -12.0 
 # Step B: Declare that the above level corresponds to this SPL (dB)
-cal_background_SPL: 60.0  
+cal_background_SPL: 75.0  
 
 # Virtual Calibration - Foreground
 # Step A: Normalize foreground Peak to this dBFS level
@@ -34,9 +34,11 @@ cal_foreground_SPL: 100.0
 
 # Mixing Targets
 # The desired background SPL in the final mix
+# RANGE: [50, 70] quantized to 3 integer dB including boundaries
 required_background_SPL: 50.0
 # The desired foreground SPL (@ 1m) in the final mix
-required_foreground_SPL: 100.0
+# RANGE: [80, 110] quantized to 3 integer dB including boundaries
+required_foreground_SPL: 110.0  
 
 # Batch Generation Settings
 n_samples: 5
@@ -52,11 +54,12 @@ position_radius: 100.0
 z_range: [1.5, 2.5]
 
 # Velocity Range [min, max] in km/h
-velocity: [60.0, 100.0]
+# RANGE: [40, 90] round to 1 integer km/h
+velocity: [40.0, 90.0]
 
 # Onset Randomization
 # Random insertion time [min, max] in seconds for the foreground event
-onset_range: [1.0, 3.0]
+onset_range: [4.0, 20.0]
 
 
 # Microphone Array
