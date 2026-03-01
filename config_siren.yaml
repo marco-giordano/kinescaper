@@ -68,7 +68,7 @@ velocity_quantization: 1
 
 # Onset Randomization
 # Random insertion time [min, max] in seconds for the foreground event
-onset_range: [4.0, 20.0]
+onset_range: [3.0, 10.0]
 
 
 # Microphone Array
