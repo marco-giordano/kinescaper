@@ -489,14 +489,17 @@ def generate_siren_dataset():
 
 
 
+        # Guard: skip if no valid annotations (e.g. non-trajectory render error)
+        if not annotations:
+            print("  [WARN] No annotations produced — skipping file save.")
+            pbar.update(1)
+            continue
+
         # Build filename: {source_stem}_{onset:.3f}_{offset:.3f}_i{iter}.wav
         # onset / offset are taken from the first annotation (the foreground event)
         source_stem = os.path.splitext(fname)[0]
-        if annotations:
-            evt_onset  = annotations[0].get('onset',  0.0)
-            evt_offset = annotations[0].get('offset', 0.0)
-        else:
-            evt_onset, evt_offset = onset, onset
+        evt_onset  = annotations[0].get('onset',  0.0)
+        evt_offset = annotations[0].get('offset', 0.0)
         out_name = (
             f"{source_stem}"
             f"_{evt_onset:.3f}_{evt_offset:.3f}"
@@ -516,6 +519,7 @@ def generate_siren_dataset():
             ann['bg_spl_target'] = bg_spl
             ann['fg_spl_target'] = fg_spl
         dataset_annotations.extend(annotations)
+
 
         t_sample_end  = time.time()
         elapsed_total = t_sample_end - t_start

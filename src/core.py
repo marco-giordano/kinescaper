@@ -16,8 +16,19 @@ try:
     from pyroadacoustics.environment import Environment
     from pyroadacoustics.soundSource import SoundSource
     from pyroadacoustics.microphoneArray import MicrophoneArray
-except ImportError:
-    pass
+except ImportError as _pyroad_err:
+    _msg = (
+        f"pyroadacoustics could not be imported: {_pyroad_err}\n"
+        "Make sure the library is on sys.path (e.g. libs/pyroadacoustics is present "
+        "and contains a valid pyroadacoustics package)."
+    )
+    class _MissingDep:          # noqa: E301
+        def __init__(self, *a, **kw):
+            raise RuntimeError(_msg)
+    Environment       = _MissingDep  # type: ignore[assignment,misc]
+    SoundSource       = _MissingDep  # type: ignore[assignment,misc]
+    MicrophoneArray   = _MissingDep  # type: ignore[assignment,misc]
+
 
 from .utils import db_to_linear, linear_to_db
 
