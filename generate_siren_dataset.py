@@ -425,50 +425,69 @@ def generate_siren_dataset():
             pbar.update(1)
             continue
 
-        # Override SPL values in config for this iteration
-        iter_config = dict(config)
-        iter_config['required_background_SPL'] = bg_spl
-        iter_config['required_foreground_SPL']  = fg_spl
-
-        ks = KineScaper(iter_config)
-
-        # Background
-        try:
-            bg_chunk = load_random_background(bg_folder, output_duration, fs)
-            ks.add_background(bg_chunk)
-        except Exception as e:
-            print(f"[ERROR] Loading background: {e}, skipping.")
-            pbar.update(1)
-            continue
-
-        # Random velocity (quantized grid pick)
+        # Random velocity (quantized grid pick) and onset — fixed across retries
         velocity = quantized_random_velocity(velocity_range, velocity_quant)
         onset    = random.uniform(onset_range[0], onset_range[1])
 
-        # Geometry
-        trajectory, z = random_trajectory(config)
 
-        print(
-            f"  [cls={cls} | s={sample_idx}/{target_count-1} | iter={iteration_idx} "
-            f"| bg={bg_spl:.1f}dB | fg={fg_spl:.1f}dB] "
-            f"vel={velocity:.1f}km/h  onset={onset:.2f}s  z={z:.2f}m"
-        )
+        _MAX_TRAJ_RETRIES = 20
+        for _traj_attempt in range(_MAX_TRAJ_RETRIES):
+            # Re-instantiate KineScaper (fresh event list) and reload background
+            iter_config = dict(config)
+            iter_config['required_background_SPL'] = bg_spl
+            iter_config['required_foreground_SPL']  = fg_spl
+            ks = KineScaper(iter_config)
 
-        ks.add_event(
-            label=label,
-            source_path=src_path,
-            trajectory=trajectory,
-            velocity=velocity,
-            start_time=onset,
-        )
+            try:
+                bg_chunk = load_random_background(bg_folder, output_duration, fs)
+                ks.add_background(bg_chunk)
+            except Exception as e:
+                print(f"[ERROR] Loading background: {e}, skipping.")
+                break   # not trajectory-related; skip this job
 
-        # Render
-        try:
-            output_mix, annotations = ks.render()
-        except Exception as e:
-            print(f"[ERROR] Render failed: {e}, skipping.")
+            # Draw a new random trajectory on every attempt
+            trajectory, z = random_trajectory(config)
+
+            if _traj_attempt > 0:
+                print(
+                    f"  [retry {_traj_attempt}/{_MAX_TRAJ_RETRIES}] "
+                    f"new trajectory z={z:.2f}m"
+                )
+            else:
+                print(
+                    f"  [cls={cls} | s={sample_idx}/{target_count-1} | iter={iteration_idx} "
+                    f"| bg={bg_spl:.1f}dB | fg={fg_spl:.1f}dB] "
+                    f"vel={velocity:.1f}km/h  onset={onset:.2f}s  z={z:.2f}m"
+                )
+
+            ks.add_event(
+                label=label,
+                source_path=src_path,
+                trajectory=trajectory,
+                velocity=velocity,
+                start_time=onset,
+            )
+
+            # Render
+            try:
+                output_mix, annotations = ks.render()
+            except Exception as e:
+                print(f"[ERROR] Render failed: {e}, skipping.")
+                break   # not trajectory-related; skip this job
+
+            if not annotations:
+                # Minimum Distance Constraint violated — retry with new trajectory
+                print("  Minimum Distance Constraint violated — drawing new trajectory...")
+                continue
+
+            # Valid render — exit retry loop
+            break
+        else:
+            print(f"  [WARN] Could not find a valid trajectory after {_MAX_TRAJ_RETRIES} attempts. Skipping.")
             pbar.update(1)
             continue
+
+
 
         # Build filename: {source_stem}_{onset:.3f}_{offset:.3f}_i{iter}.wav
         # onset / offset are taken from the first annotation (the foreground event)

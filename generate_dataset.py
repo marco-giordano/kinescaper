@@ -125,21 +125,7 @@ def generate_dataset():
         t_sample_start = time.time()
         print(f"--- Sample {i+1}/{n_samples} ---")
 
-        ks = KineScaper(config)
-
-        # A. Background
-        duration = config.get('output_duration', 10.0)
-        bg_fs    = config.get('sampling_frequency', 44100)
-
-        try:
-            bg_chunk = load_random_background(bg_folder, duration, bg_fs)
-            ks.add_background(bg_chunk)
-        except Exception as e:
-            print(f"Error loading background: {e}")
-            pbar.update(1)
-            continue
-
-        # B. Foreground Event
+        # Foreground Event
         row   = fg_metadata.sample(n=1).iloc[0]
         label = row['mode']
         fname = row['filename']
@@ -148,35 +134,66 @@ def generate_dataset():
         velocity = random.uniform(velocity_range[0], velocity_range[1])
         onset    = random.uniform(onset_range[0], onset_range[1])
 
-        # Circle-randomized trajectory — z fixed per simulation
-        z       = random.uniform(z_range[0], z_range[1])
-        theta_s = random.uniform(0, 2 * np.pi)
-        theta_e = random.uniform(0, 2 * np.pi)
-        start_pos = np.array([
-            start_center[0] + pos_radius * np.cos(theta_s),
-            start_center[1] + pos_radius * np.sin(theta_s),
-            z
-        ])
-        end_pos = np.array([
-            end_center[0] + pos_radius * np.cos(theta_e),
-            end_center[1] + pos_radius * np.sin(theta_e),
-            z
-        ])
-        trajectory = np.array([start_pos, end_pos])
+        duration = config.get('output_duration', 10.0)
+        bg_fs    = config.get('sampling_frequency', 44100)
 
-        print(f"  label={label}, velocity={velocity:.1f} km/h, onset={onset:.2f}s")
-        print(f"  start={start_pos.round(2)}, end={end_pos.round(2)}, z={z:.2f}m")
+        _MAX_TRAJ_RETRIES = 20
 
-        ks.add_event(
-            label=label,
-            source_path=source_path,
-            trajectory=trajectory,
-            velocity=velocity,
-            start_time=onset,
-        )
+        for _traj_attempt in range(_MAX_TRAJ_RETRIES):
+            # Re-instantiate KineScaper so event list is fresh on each retry
+            ks = KineScaper(config)
+            try:
+                bg_chunk = load_random_background(bg_folder, duration, bg_fs)
+                ks.add_background(bg_chunk)
+            except Exception as e:
+                print(f"Error loading background: {e}")
+                break   # background errors are not trajectory-related; skip sample
 
-        # C. Render
-        output_mix, annotations = ks.render()
+            # Circle-randomized trajectory — z fixed per simulation
+            z       = random.uniform(z_range[0], z_range[1])
+            theta_s = random.uniform(0, 2 * np.pi)
+            theta_e = random.uniform(0, 2 * np.pi)
+            start_pos = np.array([
+                start_center[0] + pos_radius * np.cos(theta_s),
+                start_center[1] + pos_radius * np.sin(theta_s),
+                z
+            ])
+            end_pos = np.array([
+                end_center[0] + pos_radius * np.cos(theta_e),
+                end_center[1] + pos_radius * np.sin(theta_e),
+                z
+            ])
+            trajectory = np.array([start_pos, end_pos])
+
+            if _traj_attempt > 0:
+                print(f"  [retry {_traj_attempt}/{_MAX_TRAJ_RETRIES}] new trajectory: start={start_pos.round(2)}, end={end_pos.round(2)}")
+            else:
+                print(f"  label={label}, velocity={velocity:.1f} km/h, onset={onset:.2f}s")
+                print(f"  start={start_pos.round(2)}, end={end_pos.round(2)}, z={z:.2f}m")
+
+            ks.add_event(
+                label=label,
+                source_path=source_path,
+                trajectory=trajectory,
+                velocity=velocity,
+                start_time=onset,
+            )
+
+            # C. Render
+            output_mix, annotations = ks.render()
+
+            if not annotations:
+                # Minimum Distance Constraint was violated — try a new trajectory
+                print(f"  Minimum Distance Constraint violated — drawing new trajectory…")
+                continue
+
+            # Valid simulation — exit retry loop
+            break
+        else:
+            print(f"  [WARN] Could not find a valid trajectory after {_MAX_TRAJ_RETRIES} attempts. Skipping sample.")
+            pbar.update(1)
+            continue
+
 
         # D. Save audio
         out_name = f"dataset_{i:04d}.wav"
