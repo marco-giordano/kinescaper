@@ -240,9 +240,58 @@ def generate_siren_dataset():
     tsv_dir   = os.path.join(output_folder, 'csv')
     json_dir  = os.path.join(output_folder, 'json')
 
-    os.makedirs(audio_dir, exist_ok=True)
-    os.makedirs(tsv_dir,   exist_ok=True)
-    os.makedirs(json_dir,  exist_ok=True)
+    # Resolve the nearest existing ancestor of output_folder to give a helpful
+    # error when the target lives on a mount point that is not yet available or
+    # is not writable by the current user.
+    def _check_output_root(path: str) -> None:
+        """Walk up the directory tree until we find an existing node, then
+        verify it is writable.  Raises SystemExit with a human-readable
+        message on failure."""
+        check = os.path.abspath(path)
+        # Find the highest existing ancestor
+        while check and not os.path.exists(check):
+            parent = os.path.dirname(check)
+            if parent == check:          # reached filesystem root
+                break
+            check = parent
+
+        if not os.path.exists(check):
+            print(
+                f"[ERROR] Cannot create output directory '{path}'.\n"
+                f"        No part of the path exists on this system.\n"
+                f"        Please verify the path in config_siren.yaml and make sure\n"
+                f"        any external drive / mount point is connected and mounted."
+            )
+            sys.exit(1)
+
+        if not os.access(check, os.W_OK):
+            print(
+                f"[ERROR] Permission denied: cannot write to '{check}'.\n"
+                f"        This is often caused by one of the following:\n"
+                f"          1. The mount point '{check}' exists but the drive is not mounted.\n"
+                f"             → Connect the drive and run:  sudo mount <device> {check}\n"
+                f"          2. The directory is owned by root or another user.\n"
+                f"             → Fix ownership:  sudo chown -R $USER {check}\n"
+                f"          3. The filesystem was mounted read-only.\n"
+                f"             → Remount read-write:  sudo mount -o remount,rw {check}\n"
+                f"        Alternatively, change 'output_folder' in config_siren.yaml\n"
+                f"        to a path you have write access to (e.g. inside ~/Documents)."
+            )
+            sys.exit(1)
+
+    _check_output_root(output_folder)
+
+    try:
+        os.makedirs(audio_dir, exist_ok=True)
+        os.makedirs(tsv_dir,   exist_ok=True)
+        os.makedirs(json_dir,  exist_ok=True)
+    except PermissionError as exc:
+        print(
+            f"[ERROR] Could not create output directories under '{output_folder}'.\n"
+            f"        System message: {exc}\n"
+            f"        Make sure the destination drive is mounted and writable."
+        )
+        sys.exit(1)
 
     # 3. Start Logging
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
