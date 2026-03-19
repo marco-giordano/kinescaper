@@ -44,9 +44,9 @@ foreground_SPL_quantization: 3
 
 # Dataset Generation Settings
 # Balance the dataset w.r.t. "bigger" or "smaller" foreground dataset siren mode classes
-balance_wrt: "bigger"
+balance_wrt: "smaller"
 # percentage of the selected class to generate
-class_percentage: 0.01 
+class_percentage: 1.0 
 # number of iterations
 iterations: 1
 
