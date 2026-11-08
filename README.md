@@ -163,9 +163,9 @@ If you use KineScaper in your research, please cite:
 ```bibtex
 @software{kinescaper2026,
   title = {KineScaper: Physics-Based Dynamic Soundscape Generator},
-  author = {Your Name},
+  author = {Marco Giordano},
   year = {2026},
-  url = {https://github.com/<your-org>/kinescaper}
+  url = {https://github.com/marco-giordano/kinescaper}
 }
 ```
 
